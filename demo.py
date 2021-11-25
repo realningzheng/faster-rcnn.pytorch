@@ -25,16 +25,16 @@ import torch.optim as optim
 import torchvision.transforms as transforms
 import torchvision.datasets as dset
 from scipy.misc import imread
-from roi_data_layer.roidb import combined_roidb
-from roi_data_layer.roibatchLoader import roibatchLoader
-from model.utils.config import cfg, cfg_from_file, cfg_from_list, get_output_dir
-from model.rpn.bbox_transform import clip_boxes
-from model.nms.nms_wrapper import nms
-from model.rpn.bbox_transform import bbox_transform_inv
-from model.utils.net_utils import save_net, load_net, vis_detections
-from model.utils.blob import im_list_to_blob
-from model.faster_rcnn.vgg16 import vgg16
-from model.faster_rcnn.resnet import resnet
+from lib.roi_data_layer.roidb import combined_roidb
+from lib.roi_data_layer.roibatchLoader import roibatchLoader
+from lib.model.utils.config import cfg, cfg_from_file, cfg_from_list, get_output_dir
+from lib.model.rpn.bbox_transform import clip_boxes
+from lib.model.nms.nms_wrapper import nms
+from lib.model.rpn.bbox_transform import bbox_transform_inv
+from lib.model.utils.net_utils import save_net, load_net, vis_detections
+from lib.model.utils.blob import im_list_to_blob
+from lib.model.faster_rcnn.vgg16 import vgg16
+from lib.model.faster_rcnn.resnet import resnet
 import pdb
 
 try:
@@ -50,10 +50,10 @@ def parse_args():
   parser = argparse.ArgumentParser(description='Train a Fast R-CNN network')
   parser.add_argument('--dataset', dest='dataset',
                       help='training dataset',
-                      default='pascal_voc', type=str)
+                      default='open_images_v4', type=str)
   parser.add_argument('--cfg', dest='cfg_file',
                       help='optional config file',
-                      default='cfgs/vgg16.yml', type=str)
+                      default='cfgs/res101_ls.yml', type=str)
   parser.add_argument('--net', dest='net',
                       help='vgg16, res50, res101, res152',
                       default='res101', type=str)
@@ -62,13 +62,12 @@ def parse_args():
                       nargs=argparse.REMAINDER)
   parser.add_argument('--load_dir', dest='load_dir',
                       help='directory to load models',
-                      default="/srv/share/jyang375/models")
+                      default="data/pretrained_model/faster_rcnn_musical_instruments.pth")
   parser.add_argument('--image_dir', dest='image_dir',
                       help='directory to load images for demo',
                       default="images")
-  parser.add_argument('--cuda', dest='cuda',
-                      help='whether use CUDA',
-                      action='store_true')
+  parser.add_argument('--cuda', default='True',
+                      help='whether use CUDA')
   parser.add_argument('--mGPUs', dest='mGPUs',
                       help='whether use multiple GPUs',
                       action='store_true')
