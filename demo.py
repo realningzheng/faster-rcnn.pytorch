@@ -65,7 +65,7 @@ def parse_args():
                       default="data/pretrained_model/faster_rcnn_musical_instruments.pth")
   parser.add_argument('--image_dir', dest='image_dir',
                       help='directory to load images for demo',
-                      default="images")
+                      default="data/demo_pics")
   parser.add_argument('--cuda', default='True',
                       help='whether use CUDA')
   parser.add_argument('--mGPUs', dest='mGPUs',
@@ -221,10 +221,10 @@ if __name__ == '__main__':
     num_boxes = Variable(num_boxes, volatile=True)
     gt_boxes = Variable(gt_boxes, volatile=True)
 
-    if args.cuda > 0:
+    if args.cuda:
         cfg.CUDA = True
 
-    if args.cuda > 0:
+    if args.cuda:
         fasterRCNN.cuda()
 
     fasterRCNN.eval()
@@ -248,7 +248,7 @@ if __name__ == '__main__':
     # create a directory to save detection results
     parts = args.image_dir.split('/')
     detection_dir = args.image_dir.replace('frame', 'detection')
-    detection_results_dir = os.path.join('/'.join(parts[:-2]), 'detection_results')
+    detection_results_dir = 'data/detection_results'
     if not os.path.isdir(detection_dir):
         os.mkdir(detection_dir)
     if not os.path.isdir(detection_results_dir):
@@ -257,7 +257,7 @@ if __name__ == '__main__':
     # count the number of boxes
     count = 0
 
-    while (num_images >= 0):
+    while (num_images >= 1):
         total_tic = time.time()
         if webcam_num == -1:
             num_images -= 1
@@ -310,7 +310,7 @@ if __name__ == '__main__':
             if cfg.TRAIN.BBOX_NORMALIZE_TARGETS_PRECOMPUTED:
                 # Optionally normalize targets by a precomputed mean and stdev
                 if args.class_agnostic:
-                    if args.cuda > 0:
+                    if args.cuda:
                         box_deltas = box_deltas.view(-1, 4) * torch.FloatTensor(cfg.TRAIN.BBOX_NORMALIZE_STDS).cuda() \
                                      + torch.FloatTensor(cfg.TRAIN.BBOX_NORMALIZE_MEANS).cuda()
                     else:
@@ -319,7 +319,7 @@ if __name__ == '__main__':
 
                     box_deltas = box_deltas.view(1, -1, 4)
                 else:
-                    if args.cuda > 0:
+                    if args.cuda:
                         box_deltas = box_deltas.view(-1, 4) * torch.FloatTensor(cfg.TRAIN.BBOX_NORMALIZE_STDS).cuda() \
                                      + torch.FloatTensor(cfg.TRAIN.BBOX_NORMALIZE_MEANS).cuda()
                     else:
@@ -363,7 +363,8 @@ if __name__ == '__main__':
                 boxCount = cls_dets.shape[0]
                 box_array = np.empty([boxCount, 7])
                 for b_index in range(boxCount):
-                    box_array[b_index][0] = int(imglist[num_images][:-4])
+                    # label the index of the input image
+                    box_array[b_index][0] = int(num_images)
                     box_array[b_index][1] = j
                     box_array[b_index][2] = cls_dets[b_index, -1]
                     box_array[b_index][3:] = cls_dets[b_index, :-1]
@@ -387,7 +388,7 @@ if __name__ == '__main__':
         if vis and webcam_num == -1:
             # cv2.imshow('test', im2show)
             # cv2.waitKey(0)
-            result_path = os.path.join(detection_dir, imglist[num_images])
+            result_path = os.path.join(args.image_dir, imglist[num_images][:-4] + "_det.jpg")
             cv2.imwrite(result_path, im2show)
         else:
             im2showRGB = cv2.cvtColor(im2show, cv2.COLOR_BGR2RGB)
