@@ -65,7 +65,7 @@ def parse_args():
                       default="data/pretrained_model/faster_rcnn_musical_instruments.pth")
   parser.add_argument('--image_dir', dest='image_dir',
                       help='directory to load images for demo',
-                      default="data/demo_pics")
+                      default="/home/ningzheng/SpatialAudio/ccolSepLoc/demo_data/trio_demo_frames")
   parser.add_argument('--cuda', default='True',
                       help='whether use CUDA')
   parser.add_argument('--mGPUs', dest='mGPUs',
@@ -141,6 +141,9 @@ def _get_image_blob(im):
 if __name__ == '__main__':
 
     args = parse_args()
+    args.image_dir = "/home/ningzheng/SpatialAudio/ccolSepLoc/demo_data/trio_demo_frames"
+    args.detection_results_dir = '/home/ningzheng/SpatialAudio/ccolSepLoc/demo_data'
+    args.detection_vis_dir = '/home/ningzheng/SpatialAudio/ccolSepLoc/demo_data/detection_vis'
 
     print('Called with args:')
     print(args)
@@ -248,7 +251,7 @@ if __name__ == '__main__':
     # create a directory to save detection results
     parts = args.image_dir.split('/')
     detection_dir = args.image_dir.replace('frame', 'detection')
-    detection_results_dir = 'data/detection_results'
+    detection_results_dir = args.detection_results_dir
     if not os.path.isdir(detection_dir):
         os.mkdir(detection_dir)
     if not os.path.isdir(detection_results_dir):
@@ -388,7 +391,7 @@ if __name__ == '__main__':
         if vis and webcam_num == -1:
             # cv2.imshow('test', im2show)
             # cv2.waitKey(0)
-            result_path = os.path.join(args.image_dir, imglist[num_images][:-4] + "_det.jpg")
+            result_path = os.path.join(args.detection_vis_dir, imglist[num_images][:-4] + "_det.jpg")
             cv2.imwrite(result_path, im2show)
         else:
             im2showRGB = cv2.cvtColor(im2show, cv2.COLOR_BGR2RGB)
